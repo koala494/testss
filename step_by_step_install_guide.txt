@@ -1,0 +1,307 @@
+════════════════════════════════════════════════════════════════════
+  STEP-BY-STEP: DOWNLOAD & INSTALL OFFLINE PYTHON WHEELS
+  Simple guide. No technical jargon. Just follow the steps exactly.
+════════════════════════════════════════════════════════════════════
+
+
+════════════════════════════════════════════════════════════════════
+  PART 1: PREPARE (Do this once)
+════════════════════════════════════════════════════════════════════
+
+STEP 1: INSTALL PYTHON ON BOTH MACHINES
+────────────────────────────────────────
+Download Python 3.11.9 from:
+https://www.python.org/downloads/release/python-3119/
+
+Scroll down → click "Windows installer (64-bit)"
+
+Run the installer and IMPORTANT:
+
+    ☑  Check the box "Add python.exe to PATH"  ← DO NOT SKIP THIS
+       Then click "Install Now"
+
+Do this on the machine with internet AND the offline machine.
+If the offline machine has no internet, download the .exe installer
+and copy it to the flash drive too.
+
+
+STEP 2: VERIFY PYTHON WORKS
+────────────────────────────
+Open Command Prompt:
+    Press Win+R → type cmd → press Enter
+
+Type:
+    python --version
+
+You should see:  Python 3.11.9
+
+Type:
+    pip --version
+
+You should see something like:  pip 23.x.x from ...
+
+If you get "not recognized" error → Python is not in PATH.
+Uninstall Python and reinstall with the PATH checkbox checked.
+
+
+════════════════════════════════════════════════════════════════════
+  PART 2: DOWNLOAD WHEELS (On machine WITH internet)
+════════════════════════════════════════════════════════════════════
+
+STEP 3: CREATE A FOLDER ON YOUR DESKTOP
+────────────────────────────────────────
+Open Command Prompt and type these lines ONE BY ONE:
+
+    cd %USERPROFILE%\Desktop
+    mkdir arabic_toolkit
+    cd arabic_toolkit
+    mkdir wheels
+
+Now you have:  Desktop\arabic_toolkit\wheels\
+
+
+STEP 4: DOWNLOAD ALL WHEELS
+────────────────────────────
+IMPORTANT: The download machine must ALSO be Windows AMD64 with Python 3.11.
+Both machines must match. If they do, follow these steps:
+
+COMMAND 1 — downloads the main libraries as pre-built wheels:
+
+    pip download regex ftfy chardet charset-normalizer unicodedata2 unidecode emoji bleach webencodings beautifulsoup4 soupsieve dateparser python-dateutil rapidfuzz jellyfish pyarabic arabic-reshaper qalsadi tashaphyne naftawayh python-bidi openpyxl xlrd xlsxwriter et-xmlfile python-docx lxml typing-extensions pyshp shapely pyproj geopy geographiclib geojson fiona geopandas mgrs utm pygeodesy gpxpy pandas numpy pytz tzdata six tqdm colorama packaging certifi idna pip setuptools wheel ipykernel --platform win_amd64 --python-version 3.11 --only-binary=:all: -d wheels
+
+Wait until it finishes.
+
+COMMAND 2 — install notebook on THIS machine first:
+
+    pip install notebook
+
+Wait until it finishes. This is needed so pip resolves all dependencies.
+
+COMMAND 3 — save the exact list of everything pip installed:
+
+    pip freeze > installed.txt
+
+COMMAND 4 — download everything from that list into wheels folder:
+
+    pip download -r installed.txt -d wheels
+
+If Command 4 gives errors about specific packages, don't worry.
+Just run this final cleanup command to grab anything still missing:
+
+    pip download overrides jsonschema-specifications jupyter-server notebook -d wheels
+
+You should now have 100-150+ files in the wheels folder.
+
+
+STEP 5: CHECK THE WHEELS FOLDER
+────────────────────────────────
+Type:
+    dir wheels\*.whl
+
+You should see 100-150+ files listed (.whl and some .tar.gz).
+If you see 0 files → something went wrong. Re-run Step 4.
+
+To see the total count:
+    dir wheels /B | find /C /V ""
+
+
+STEP 6: COPY TO FLASH DRIVE
+────────────────────────────
+Let's say your flash drive letter is E: (check in File Explorer)
+
+Type:
+    xcopy /E /I "%USERPROFILE%\Desktop\arabic_toolkit" E:\arabic_toolkit
+
+Your flash drive should now look like this:
+
+    E:\
+    └── arabic_toolkit\
+        └── wheels\
+            ├── regex-2024.xxx.whl
+            ├── pandas-2.xxx.whl
+            ├── numpy-1.xxx.whl
+            ├── shapely-2.xxx.whl
+            ├── ... (100-150+ files)
+            └── ...
+
+Also copy the Python installer .exe to the flash drive if the
+offline machine doesn't have Python yet:
+
+    copy "%USERPROFILE%\Downloads\python-3.11.9-amd64.exe" E:\
+
+
+════════════════════════════════════════════════════════════════════
+  PART 4: INSTALL OFFLINE (On the machine WITHOUT internet)
+════════════════════════════════════════════════════════════════════
+
+STEP 7: PLUG FLASH DRIVE INTO THE OFFLINE MACHINE
+──────────────────────────────────────────────────
+Let's say the flash drive letter is E: on this machine too.
+(Check in File Explorer — it might be D:, F:, etc.)
+
+
+STEP 8: INSTALL PYTHON (if not already installed)
+──────────────────────────────────────────────────
+If Python is not installed yet, double-click:
+    E:\python-3.11.9-amd64.exe
+
+IMPORTANT: Check "Add python.exe to PATH" → Click "Install Now"
+
+Close and reopen Command Prompt after installing.
+
+
+STEP 9: INSTALL ALL LIBRARIES FROM WHEELS
+──────────────────────────────────────────
+Open Command Prompt. First install pip/setuptools:
+
+    pip install --no-index --find-links=E:\arabic_toolkit\wheels pip setuptools wheel
+
+Then install EVERYTHING in one command — copy and paste this entire line:
+
+    pip install --no-index --find-links=E:\arabic_toolkit\wheels regex ftfy chardet charset-normalizer unicodedata2 unidecode emoji bleach beautifulsoup4 dateparser python-dateutil rapidfuzz jellyfish pyarabic arabic-reshaper python-bidi qalsadi tashaphyne naftawayh openpyxl xlrd xlsxwriter python-docx lxml numpy pandas pyshp shapely pyproj geopy geographiclib geojson fiona geopandas mgrs utm pygeodesy gpxpy tqdm colorama notebook ipykernel
+
+Wait until it finishes. You should see "Successfully installed ..." with a long list.
+
+WHAT'S IN THIS COMMAND (so you know it's all there):
+  - Data cleaning:    regex, ftfy, chardet, charset-normalizer, unicodedata2,
+                      unidecode, emoji, bleach, beautifulsoup4, dateparser,
+                      python-dateutil, rapidfuzz, jellyfish
+  - Arabic NLP:       pyarabic, arabic-reshaper, python-bidi, qalsadi,
+                      tashaphyne, naftawayh
+  - Excel:            openpyxl, xlrd, xlsxwriter
+  - Word docs:        python-docx, lxml
+  - Data:             numpy, pandas
+  - GIS/Coordinates:  pyshp, shapely, pyproj, geopy, geographiclib,
+                      geojson, fiona, geopandas
+  - MGRS/GPS:         mgrs, utm, pygeodesy, gpxpy
+  - Jupyter + utils:  tqdm, colorama, notebook, ipykernel
+
+
+IF SOMETHING FAILS? Use one-by-one method instead:
+
+If the big command above gives an error, install libraries one at a time
+to find which one is causing the problem:
+
+    pip install --no-index --find-links=E:\arabic_toolkit\wheels regex
+    pip install --no-index --find-links=E:\arabic_toolkit\wheels ftfy
+    pip install --no-index --find-links=E:\arabic_toolkit\wheels chardet
+    pip install --no-index --find-links=E:\arabic_toolkit\wheels charset-normalizer
+    pip install --no-index --find-links=E:\arabic_toolkit\wheels unicodedata2
+    pip install --no-index --find-links=E:\arabic_toolkit\wheels unidecode
+    pip install --no-index --find-links=E:\arabic_toolkit\wheels emoji
+    pip install --no-index --find-links=E:\arabic_toolkit\wheels bleach
+    pip install --no-index --find-links=E:\arabic_toolkit\wheels beautifulsoup4
+    pip install --no-index --find-links=E:\arabic_toolkit\wheels dateparser
+    pip install --no-index --find-links=E:\arabic_toolkit\wheels python-dateutil
+    pip install --no-index --find-links=E:\arabic_toolkit\wheels rapidfuzz
+    pip install --no-index --find-links=E:\arabic_toolkit\wheels jellyfish
+    pip install --no-index --find-links=E:\arabic_toolkit\wheels pyarabic
+    pip install --no-index --find-links=E:\arabic_toolkit\wheels arabic-reshaper
+    pip install --no-index --find-links=E:\arabic_toolkit\wheels python-bidi
+    pip install --no-index --find-links=E:\arabic_toolkit\wheels qalsadi
+    pip install --no-index --find-links=E:\arabic_toolkit\wheels tashaphyne
+    pip install --no-index --find-links=E:\arabic_toolkit\wheels naftawayh
+    pip install --no-index --find-links=E:\arabic_toolkit\wheels openpyxl
+    pip install --no-index --find-links=E:\arabic_toolkit\wheels xlrd
+    pip install --no-index --find-links=E:\arabic_toolkit\wheels xlsxwriter
+    pip install --no-index --find-links=E:\arabic_toolkit\wheels python-docx
+    pip install --no-index --find-links=E:\arabic_toolkit\wheels lxml
+    pip install --no-index --find-links=E:\arabic_toolkit\wheels numpy
+    pip install --no-index --find-links=E:\arabic_toolkit\wheels pandas
+    pip install --no-index --find-links=E:\arabic_toolkit\wheels pyshp
+    pip install --no-index --find-links=E:\arabic_toolkit\wheels shapely
+    pip install --no-index --find-links=E:\arabic_toolkit\wheels pyproj
+    pip install --no-index --find-links=E:\arabic_toolkit\wheels geopy
+    pip install --no-index --find-links=E:\arabic_toolkit\wheels geographiclib
+    pip install --no-index --find-links=E:\arabic_toolkit\wheels geojson
+    pip install --no-index --find-links=E:\arabic_toolkit\wheels fiona
+    pip install --no-index --find-links=E:\arabic_toolkit\wheels geopandas
+    pip install --no-index --find-links=E:\arabic_toolkit\wheels mgrs
+    pip install --no-index --find-links=E:\arabic_toolkit\wheels utm
+    pip install --no-index --find-links=E:\arabic_toolkit\wheels pygeodesy
+    pip install --no-index --find-links=E:\arabic_toolkit\wheels gpxpy
+    pip install --no-index --find-links=E:\arabic_toolkit\wheels tqdm
+    pip install --no-index --find-links=E:\arabic_toolkit\wheels colorama
+    pip install --no-index --find-links=E:\arabic_toolkit\wheels notebook
+    pip install --no-index --find-links=E:\arabic_toolkit\wheels ipykernel
+
+Whichever line gives the error — that's the problematic library.
+Skip it and continue with the rest.
+
+
+STEP 10: SET UP JUPYTER
+───────────────────────
+Type:
+    python -m ipykernel install --user --name arabic_env --display-name "Arabic Data Cleaning"
+
+
+════════════════════════════════════════════════════════════════════
+  PART 5: START WORKING
+════════════════════════════════════════════════════════════════════
+
+STEP 11: LAUNCH JUPYTER NOTEBOOK
+─────────────────────────────────
+Type:
+    jupyter notebook
+
+Your web browser will open automatically with Jupyter.
+Click "New" → "Arabic Data Cleaning" to create a new notebook.
+
+
+STEP 12: TEST EVERYTHING WORKS
+───────────────────────────────
+In the first Jupyter cell, paste this and press Shift+Enter:
+
+    import regex
+    import ftfy
+    import chardet
+    import emoji
+    import pyarabic
+    from rapidfuzz import fuzz
+    import openpyxl
+    import docx
+    import pandas as pd
+    import numpy as np
+    import shapefile      # pyshp
+    import shapely
+    import pyproj
+    import geopy
+    import geojson
+    import geopandas as gpd
+    import mgrs
+    import utm
+    import pygeodesy
+    import gpxpy
+
+    print("All libraries loaded successfully!")
+    print(f"pandas version: {pd.__version__}")
+    print(f"numpy version: {np.__version__}")
+
+If you see "All libraries loaded successfully!" → you are done!
+
+
+════════════════════════════════════════════════════════════════════
+  COMMON ERRORS & FIXES
+════════════════════════════════════════════════════════════════════
+
+ERROR: "'pip' is not recognized"
+FIX:   Python is not in PATH. Reinstall Python with "Add to PATH" checked.
+
+ERROR: "No matching distribution found"
+FIX:   A wheel file is missing. Go back to the internet machine,
+       re-run Step 4, and copy the wheels folder again.
+
+ERROR: "Could not find a version that satisfies the requirement"
+FIX:   Same as above — missing wheel. Also make sure you typed the
+       flash drive letter correctly (E:\, D:\, F:\, etc.)
+
+ERROR: "ERROR: Could not install packages due to an EnvironmentError"
+FIX:   Run Command Prompt as Administrator:
+       Right-click Command Prompt → "Run as administrator"
+
+JUPYTER WON'T OPEN IN BROWSER:
+FIX:   Copy the URL shown in Command Prompt (starts with
+       http://localhost:8888) and paste it into your browser manually.
+
+
+════════════════════════════════════════════════════════════════════
