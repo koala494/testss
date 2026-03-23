@@ -1,0 +1,310 @@
+================================================================================
+    OFFLINE MAP FOR TABLEAU DESKTOP - COMPLETE GUIDE
+    Using ArcMap 10 as the Map Source
+================================================================================
+
+WHAT THIS GUIDE DOES:
+    Export a map from ArcMap 10 as a Tile Package (.tpk),
+    convert it to tiles using a Python script,
+    and load it into Tableau Desktop as an offline map.
+
+WHAT YOU NEED:
+    - ArcMap 10 (any version: 10.0, 10.1, 10.2, ... 10.8)
+    - Python (ArcMap 10 comes with Python 2.7 already installed)
+    - Tableau Desktop
+    - The two files provided with this guide:
+        1. tpk_to_tiles.py    (Python script)
+        2. middle_east_offline.tms   (Tableau map config file)
+
+ESTIMATED TIME: 15-20 minutes
+
+================================================================================
+STEP 1: FIND YOUR PYTHON (ALREADY INSTALLED WITH ARCMAP)
+================================================================================
+
+ArcMap 10 installs Python 2.7 automatically. You need to know where it is.
+
+Common locations (check these):
+
+    C:\Python27\python.exe
+    C:\Python27\ArcGIS10.0\python.exe
+    C:\Python27\ArcGIS10.1\python.exe
+    C:\Python27\ArcGIS10.2\python.exe
+    C:\Python27\ArcGIS10.3\python.exe
+    C:\Python27\ArcGIS10.4\python.exe
+    C:\Python27\ArcGIS10.5\python.exe
+    C:\Python27\ArcGIS10.6\python.exe
+    C:\Python27\ArcGIS10.7\python.exe
+    C:\Python27\ArcGIS10.8\python.exe
+
+HOW TO VERIFY:
+    1. Open Command Prompt (Start > type "cmd" > Enter)
+    2. Type:    C:\Python27\python.exe --version
+    3. You should see:  Python 2.7.xx
+
+    If that does not work, try:
+        C:\Python27\ArcGIS10.3\python.exe --version
+    (Replace 10.3 with your ArcMap version number)
+
+    WRITE DOWN the full path to python.exe — you will need it in Step 4.
+
+
+================================================================================
+STEP 2: PREPARE YOUR MAP IN ARCMAP
+================================================================================
+
+    1. Open ArcMap
+
+    2. Add a basemap:
+       - Go to: File > Add Data > Add Basemap
+       - Choose one of these (whichever you prefer):
+           * World Street Map        (roads, labels, cities)
+           * World Topographic Map   (terrain + roads)
+           * World Imagery           (satellite — WARNING: very large file size)
+       - Click "Add"
+       - Wait for the basemap to load
+
+    3. Zoom to the Middle East:
+       - Use the zoom tool or scroll wheel
+       - Make sure your view covers the ENTIRE area you need
+       - For example: from Egypt on the left, to Iran on the right,
+         Turkey on top, Yemen at the bottom
+       - IMPORTANT: Whatever is visible on your screen defines the
+         area that will be exported. Zoom out a bit extra to be safe.
+
+    4. OPTIONAL — Add your own layers:
+       - If you have shapefiles of country boundaries, cities, roads, etc.
+         you can add them too. They will be included in the tile export.
+       - But the basemap alone is usually enough.
+
+
+================================================================================
+STEP 3: EXPORT THE TILE PACKAGE (.tpk)
+================================================================================
+
+    1. In ArcMap, go to: File > Share As > Tile Package
+
+       NOTE: If you do NOT see "Tile Package" option:
+       - You might need ArcMap 10.1 or later
+       - Alternative: Go to ArcToolbox > Data Management Tools
+         > Package > Create Map Tile Package
+
+    2. In the Tile Package dialog:
+
+       a. "Tile Package" tab:
+          - Save package to: "file" (save locally)
+          - Choose a location, for example:
+            C:\Users\YourName\Desktop\middle_east.tpk
+          - Give it a name like "Middle East Map"
+
+       b. "Tile Format" tab:
+          - Tiling Scheme: "ArcGIS Online / Bing Maps / Google Maps"
+            (THIS IS VERY IMPORTANT — do not change this)
+          - Tile Format: PNG (or JPEG if you want smaller size)
+          - Levels of Detail:
+            * Minimum: Level 0
+            * Maximum: Level 12
+            
+            LEVEL GUIDE:
+            Level 0-3  = World/continent view
+            Level 4-6  = Country view
+            Level 7-9  = State/province view
+            Level 10-12 = City/district view
+            Level 13-14 = Street/neighborhood view (MUCH larger file)
+            
+            RECOMMENDATION: Use 0-12 for a good balance.
+            The file will be around 500 MB to 2 GB.
+            Going to level 14 could be 10-20 GB.
+
+       c. "Item Description" tab:
+          - Summary: type anything (e.g., "Middle East offline map")
+          - Tags: type anything (e.g., "map")
+          - These are required fields but don't affect the output
+
+       d. "Extent" tab (if available):
+          - Choose "Current Display Extent"
+          - This means only what you see on screen gets exported
+
+    3. Click "Share" or "Create" or "OK"
+
+    4. WAIT. This process takes time:
+       - Level 0-10: about 5-15 minutes
+       - Level 0-12: about 15-45 minutes
+       - Level 0-14: could take hours
+       - You will see a progress bar at the bottom of ArcMap
+       - Do NOT close ArcMap while it's working
+
+    5. When done, you will have a .tpk file, for example:
+       C:\Users\YourName\Desktop\middle_east.tpk
+
+
+================================================================================
+STEP 4: CONVERT THE .TPK FILE TO TILES
+================================================================================
+
+    1. Put the Python script (tpk_to_tiles.py) somewhere easy to find.
+       For example, copy it to your Desktop:
+       C:\Users\YourName\Desktop\tpk_to_tiles.py
+
+    2. Open Command Prompt:
+       - Press Start
+       - Type "cmd"
+       - Press Enter
+
+    3. Run the script:
+
+       Type this command (all on one line):
+
+       C:\Python27\python.exe  C:\Users\YourName\Desktop\tpk_to_tiles.py  "C:\Users\YourName\Desktop\middle_east.tpk"  "C:\MapTiles\middle_east"
+
+       EXPLANATION OF THE COMMAND:
+       - C:\Python27\python.exe          = Python (change if yours is different, see Step 1)
+       - C:\Users\...\tpk_to_tiles.py    = the Python script
+       - "C:\Users\...\middle_east.tpk"  = your .tpk file from Step 3
+       - "C:\MapTiles\middle_east"       = where the tiles will go
+
+       IMPORTANT: Replace "YourName" with your actual Windows username!
+
+    4. Press Enter and WAIT.
+       - You will see progress messages like:
+         "Extracted 1000 tiles..."
+         "Extracted 2000 tiles..."
+       - This can take 2-10 minutes depending on the .tpk size
+       - When done, you will see "DONE! Total tiles extracted: XXXXX"
+
+    5. VERIFY: Open C:\MapTiles\middle_east\ in File Explorer
+       - You should see numbered folders: 0, 1, 2, 3, ... up to 12
+       - Inside each folder are more numbered folders
+       - Inside those are .png or .jpg image files
+       - These are your map tiles!
+
+       EXAMPLE STRUCTURE:
+       C:\MapTiles\middle_east\
+           0\
+               0\
+                   0.png
+           1\
+               1\
+                   0.png
+                   1.png
+           ...
+           12\
+               2100\
+                   1500.png
+                   1501.png
+               2101\
+                   ...
+
+
+================================================================================
+STEP 5: INSTALL THE .TMS FILE FOR TABLEAU
+================================================================================
+
+    1. Find your Tableau Repository folder:
+       - Usually at: C:\Users\YourName\Documents\My Tableau Repository\
+       - If you can't find it, open Tableau Desktop, go to:
+         File > Repository Location — it will show you the path
+
+    2. Inside that folder, find (or create) a folder called "Mapsources":
+       C:\Users\YourName\Documents\My Tableau Repository\Mapsources\
+
+       If the "Mapsources" folder does not exist, create it yourself.
+
+    3. Copy the file "middle_east_offline.tms" into that Mapsources folder:
+       C:\Users\YourName\Documents\My Tableau Repository\Mapsources\middle_east_offline.tms
+
+    4. IMPORTANT — CHECK THE PATH IN THE .TMS FILE:
+       - Right-click middle_east_offline.tms > Open With > Notepad
+       - Find this line:
+         url="file:///C:/MapTiles/middle_east/{z}/{x}/{y}.png"
+       - Make sure the path matches where your tiles are!
+       - If your tiles are .jpg instead of .png, change .png to .jpg
+       - Save and close Notepad
+
+
+================================================================================
+STEP 6: USE THE MAP IN TABLEAU
+================================================================================
+
+    1. Close Tableau Desktop completely (if it's open)
+
+    2. Open Tableau Desktop
+
+    3. Go to: Map > Background Maps
+
+    4. You should see "Middle East Offline Map" in the list!
+       Click on it.
+
+    5. Now drag a geographic field (like Country, City, Latitude/Longitude)
+       onto your worksheet — the offline map will appear as the background.
+
+    6. Disconnect your internet to verify — the map should still work!
+
+
+================================================================================
+TROUBLESHOOTING
+================================================================================
+
+PROBLEM: "Middle East Offline Map" does not appear in Tableau
+    - Make sure the .tms file is in the correct Mapsources folder
+    - Make sure you restarted Tableau AFTER placing the .tms file
+    - Check the folder name: it must be called "Mapsources" (with an s)
+
+PROBLEM: Map appears but is blank / gray
+    - Open the .tms file in Notepad
+    - Check the url= path — does it match your tile folder?
+    - Check if tiles are .png or .jpg and make sure the .tms matches
+    - Try opening one of the tile images to verify they are real images
+
+PROBLEM: Python script gives errors
+    - Make sure you are using the correct Python path (see Step 1)
+    - Make sure the .tpk file path is in quotes if it has spaces
+    - Try: C:\Python27\ArcGIS10.3\python.exe instead of C:\Python27\python.exe
+    - If you get "No module named struct" — your Python install may be broken,
+      try reinstalling Python 2.7 from python.org
+
+PROBLEM: "Share As > Tile Package" not available in ArcMap
+    - This feature requires ArcMap 10.1 or later
+    - Alternative method:
+      1. Go to ArcToolbox
+      2. Data Management Tools > Package > Create Map Tile Package
+      3. Same settings as described in Step 3
+
+PROBLEM: .tpk file is too large
+    - Reduce the maximum zoom level (try 10 instead of 12)
+    - Use JPEG format instead of PNG (smaller but lower quality)
+    - Reduce the extent (zoom into only the area you truly need)
+
+PROBLEM: Map tiles look blurry when zoomed in
+    - You need higher zoom levels in your tile package
+    - Go back to Step 3 and increase the maximum level
+    - Remember: higher levels = larger file size
+
+PROBLEM: Script extracts 0 tiles
+    - The .tpk might use a format the script doesn't recognize
+    - Try re-exporting from ArcMap with:
+      * Tiling Scheme: "ArcGIS Online / Bing Maps / Google Maps"
+      * Tile Format: PNG
+    - Make sure the .tpk is not corrupted (try opening it in ArcMap)
+
+
+================================================================================
+SUMMARY OF ALL FILES AND LOCATIONS
+================================================================================
+
+FILE                            LOCATION
+----                            --------
+tpk_to_tiles.py                 Anywhere (e.g., Desktop) — run once then delete
+middle_east.tpk                 Anywhere (e.g., Desktop) — can delete after conversion
+middle_east_offline.tms         Documents\My Tableau Repository\Mapsources\
+Map tiles (folders 0-12)        C:\MapTiles\middle_east\
+
+After everything works, you can delete the .tpk file and the Python script.
+The only things you need to keep are:
+    - The tiles folder (C:\MapTiles\middle_east\)
+    - The .tms file (in Mapsources)
+
+
+================================================================================
+END OF GUIDE
+================================================================================

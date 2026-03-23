@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mapsource>
+  <layers>
+    <layer display-name="Middle East Offline Map"
+      type="features"
+      url="file:///C:/MapTiles/middle_east/{z}/{x}/{y}.png"
+      min-zoom="0"
+      max-zoom="12"
+      server-info="">
+      <map-layer-style>
+        <style-rule element="map-layer">
+          <format opacity="1.0"/>
+        </style-rule>
+      </map-layer-style>
+    </layer>
+  </layers>
+</mapsource>
